@@ -6,7 +6,6 @@ Project Setup. Dependencies such as bun to replace npm, shadcn for components
 
 Created the main home page layout with sidebar and navbar. Single page web currently
 
-
 ### Day 1.3:
 Sign in/up, Database, webhooks and public hosting domain
 Sign-in/up: Clerk. Log of creating/deletion/update can be seen in the logs
