@@ -1,10 +1,28 @@
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
+// the home page that isnt in navbar and sidebar
+//  user -> page.tsx -> home-view.tsx -> categories-section.tsx -> filter-carousel.tsx
 
-export default function Home() {
+
+import { HomeView } from "@/modules/home/ui/views/home-view"
+import { HydrateClient, trpc } from "@/trpc/server"
+
+export const dynamic = "force-dynamic"
+
+interface PageProps {
+  searchParams: Promise<{
+    categoryId?: string
+  }>
+}
+
+const Page = async ({ searchParams }: PageProps) => {
+  const { categoryId } = await searchParams
+  void trpc.categories.getMany.prefetch() // prefetching to populate data cache
+
   return (
-    <div>
-      I will load videos in the future
-    </div>
+    <HydrateClient>
+      <HomeView categoryId={categoryId} />
+    </HydrateClient>
+      
   )
 }
+
+export default Page;

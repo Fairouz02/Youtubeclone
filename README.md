@@ -14,3 +14,13 @@ Database: Neon.tech (PostgreSQL), DrizzleORM
 Ngrok: public hosting site
 Concurrent: host local and public at the same time
 To run web portal: bunx drizzle-kit studio & bun run dev:all
+
+### Day 2.1:
+TRPC: ensures end to end typesafety. allows authenticated prefetching
+Why prefetch: "render as you fetch" concept. parallel data loading
+Server Component -> Data Cache -> HydrateClient -> Client Components -> Data Cache
+    1. Prefetch Data    2.Preserve State    3: Assess Cache    4: Auto-refresh
+
+populated the video categories using carousel and fetching the categories from drizzle.
+Upstash to cache the categories and limit requests(refresh) count
+current file format for categories(neglecting db connection): user -> page.tsx -> home-view.tsx -> categories-section.tsx -> filter-carousel.tsx
