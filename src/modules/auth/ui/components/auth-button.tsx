@@ -1,16 +1,23 @@
+// the menu when click on top-right signin/profile button
 "use client"
 
 import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { UserCircleIcon } from "lucide-react"
+import { ClapperboardIcon, UserCircleIcon } from "lucide-react"
 
 export const AuthButton = () => {
     // TODO: add different auth states
     return (
         <>
         <SignedIn>
-            <UserButton />
-            {/* TODO: add menu items for studio and user profile */}
+            <UserButton>
+                <UserButton.MenuItems>
+                    {/* TODO: add user profile */}
+                    <UserButton.Link label="Studio" href="/studio" labelIcon={ <ClapperboardIcon className="size-4"/> } />
+                    <UserButton.Action label="manageAccount" />
+                </UserButton.MenuItems>
+            </UserButton>
+            
         </SignedIn>
 
         <SignedOut>
