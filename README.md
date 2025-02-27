@@ -24,3 +24,12 @@ Server Component -> Data Cache -> HydrateClient -> Client Components -> Data Cac
 populated the video categories using carousel and fetching the categories from drizzle.
 Upstash to cache the categories and limit requests(refresh) count
 current file format for categories(neglecting db connection): user -> page.tsx -> home-view.tsx -> categories-section.tsx -> filter-carousel.tsx
+
+### Day 3.1:
+Create the studio layout and populate video data in video section.
+Infinite scroll wheel limited by DEFAULT_LIMIT in constants.ts 
+
+### Day 4.1: 
+MUX (video service) integration and webhooks.
+studio-uploader.tsx, studio-upload-model.tsx, webhook/route.ts
+MUX webhooks syncing with db, ui 
