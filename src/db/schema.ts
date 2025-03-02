@@ -1,7 +1,8 @@
 // "relation" is a orm "foreign key" that works on the application level and not database level
 
-import { pgTable, text, uuid, timestamp, uniqueIndex, integer, pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { createInsertSchema, createSelectSchema, createUpdateSchema } from "drizzle-zod"
+import { pgTable, text, uuid, timestamp, uniqueIndex, integer, pgEnum } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -46,7 +47,9 @@ export const videos = pgTable("videos", {
     muxTrackId: text("mux_track_id"),                   // if video has subtitles
     muxTrackStatus: text("mux_track_status"),           // if video has subtitles
     thumbnailUrl: text("thumbnail_url"),
+    thumbnailKey: text("thumbnail_key"),
     previewUrl: text("preview_url"),
+    previewKey: text("preview_key"),
     duration: integer("duration").default(0).notNull(),
     visibility: videoVisibility("visiblity").default("private").notNull(),
     userId: uuid("user_id").references(() => users.id, {onDelete: "cascade"}).notNull(),
@@ -54,6 +57,10 @@ export const videos = pgTable("videos", {
     createdAt: timestamp("created at").defaultNow().notNull(),
     updatedAt: timestamp("updated at").defaultNow().notNull()
 })
+
+export const videoInsertSchema = createInsertSchema(videos)
+export const videoUpdateSchema = createUpdateSchema(videos)
+export const videoSelectSchema = createSelectSchema(videos)
 
 export const videoRelations = relations( videos, ({ one }) => ({
     user: one(users, {
