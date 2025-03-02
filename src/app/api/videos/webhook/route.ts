@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { mux } from "@/lib/mux";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
+import { UTApi } from "uploadthing/server";
 
 const SIGNING_SECRET = process.env.MUX_WEBHOOK_SECRET!
 type WebhookEvent = 
@@ -64,16 +65,31 @@ export const POST = async(request: Request) => {
                 return new Response("Missing playback ID", {status: 400})
             }
 
-            const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`
-            const previewUrl = `https://image.mux.com/${playbackId}/animated.gif`
+            const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`
+            const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`
             const duration = data.duration ? Math.round(data.duration * 1000) : 0
+
+            const utapi = new UTApi()
+            const [ uploadedThumbnailUrl, uploadedPreviewUrl ] = await utapi.uploadFilesFromUrl([
+                tempThumbnailUrl,
+                tempPreviewUrl
+            ])
+
+            if (!uploadedThumbnailUrl.data || !uploadedPreviewUrl.data) {
+                return new Response("Failed to upload thumbnail or preview", {status: 500})
+            }
+
+            const { key: thumbnailKey, url: thumbnailUrl } = uploadedThumbnailUrl.data
+            const { key: previewKey, url: previewUrl } = uploadedPreviewUrl.data
 
             await db.update(videos).set({
                 muxStatus: data.status,
                 muxPlaybackId: playbackId,
                 muxAssetId: data.id,
                 thumbnailUrl,
+                thumbnailKey,
                 previewUrl,
+                previewKey,
                 duration
             })
             .where(eq(videos.muxUploadId, data.upload_id))
