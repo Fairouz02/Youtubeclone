@@ -79,8 +79,8 @@ export const POST = async(request: Request) => {
                 return new Response("Failed to upload thumbnail or preview", {status: 500})
             }
 
-            const { key: thumbnailKey, url: thumbnailUrl } = uploadedThumbnailUrl.data
-            const { key: previewKey, url: previewUrl } = uploadedPreviewUrl.data
+            const { key: thumbnailKey, ufsUrl: thumbnailUrl } = uploadedThumbnailUrl.data
+            const { key: previewKey, ufsUrl: previewUrl } = uploadedPreviewUrl.data
 
             await db.update(videos).set({
                 muxStatus: data.status,

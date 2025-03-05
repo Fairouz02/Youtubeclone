@@ -46,7 +46,7 @@ export const videosRouter = createTRPCRouter({
                 throw new TRPCError({ code: "BAD_REQUEST"})
             }
             
-            const { key: thumbnailKey, url: thumbnailUrl } = uploadedThumbnail.data
+            const { key: thumbnailKey, ufsUrl: thumbnailUrl } = uploadedThumbnail.data
 
             const [updatedVideo] = await db.update(videos).set({thumbnailUrl, thumbnailKey}).where(and(
                 eq(videos.id, input.id),
