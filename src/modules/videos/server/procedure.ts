@@ -33,12 +33,12 @@ export const videosRouter = createTRPCRouter({
 
         return workflowRunId
     }),
-    generateThumbnail: protectedProcedure.input(z.object({ id: z.string().uuid() }))
+    generateThumbnail: protectedProcedure.input(z.object({ id: z.string().uuid(), prompt: z.string().min(10) }))
         .mutation(async ({ ctx, input }) => {
         const {id: userId} = ctx.user
         const { workflowRunId } = await workflow.trigger({
-            url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/title`,
-            body: { userId, videoId: input.id },
+            url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/thumbnail`,
+            body: { userId, videoId: input.id, prompt: input.prompt },
             retries: 3
         })
 
@@ -92,6 +92,7 @@ export const videosRouter = createTRPCRouter({
     remove: protectedProcedure.input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ctx, input}) => {
             const { id: userId } = ctx.user
+            const utapi = new UTApi()
 
             const [removedVideo] = await db.delete(videos)
                 .where(and(
@@ -101,6 +102,17 @@ export const videosRouter = createTRPCRouter({
                 
             if (!removedVideo) {
                 throw new TRPCError({ code: "NOT_FOUND"})
+            }
+
+            if (removedVideo.thumbnailKey) {
+
+                await utapi.deleteFiles(removedVideo.thumbnailKey)
+
+            }
+            if (removedVideo.previewKey) {
+
+                await utapi.deleteFiles(removedVideo.previewKey)
+
             }
 
             return removedVideo
