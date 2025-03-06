@@ -120,7 +120,7 @@ export const POST = async(request: Request) => {
             await db.delete(videos).where(eq( videos.muxUploadId, data.upload_id))
         break
         }
-        case "video.asset.track.ready": { // subtitles
+        case "video.asset.track.ready": { // subtitles. webhook will be activated/called when there is audio or subtitles
             const data = payload.data as VideoAssetTrackReadyWebhookEvent["data"] & {
                 asset_id: string
             }

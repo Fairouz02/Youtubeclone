@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation"
 import { ErrorBoundary } from "react-error-boundary"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants"
-import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlusIcon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react"
+import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlusIcon, Loader2Icon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react"
 
 import { trpc } from "@/trpc/client"
 import { Input } from "@/components/ui/input"
@@ -69,6 +69,24 @@ const FormSectionSuspense = ({videoId}: FormSectionProps) => {
             utils.studio.getMany.invalidate()
             toast.success("Removed successfull")
             router.push("/studio")
+        },
+        onError: (e) => {
+            toast.error("Something went wrong: " + e)
+        }
+    })
+
+    const generateTitle = trpc.videos.generateTitle.useMutation({
+        onSuccess: () => {
+            toast.success( "Background job started", { description: "This may take some time"})
+        },
+        onError: (e) => {
+            toast.error("Something went wrong: " + e)
+        }
+    })
+
+    const generateDescription = trpc.videos.generateDescription.useMutation({
+        onSuccess: () => {
+            toast.success( "Background job started", { description: "This may take some time"})
         },
         onError: (e) => {
             toast.error("Something went wrong: " + e)
@@ -155,8 +173,13 @@ const FormSectionSuspense = ({videoId}: FormSectionProps) => {
                         <FormField control={form.control} name="title" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Title
-                                    {/* TODO: add ai generate button */}
+                                    <div className="flex items-center gap-x-2">
+                                        Title
+                                        <Button size="icon" variant="outline" type="button" className="rounded-full size-6 [&_svg]:size-3" onClick={ () => generateTitle.mutate({ id:videoId })} disabled={generateTitle.isPending || !video.muxTrackId}>
+                                            { generateTitle.isPending ? <Loader2Icon className="animate-spin" /> : <SparklesIcon/> }
+                                            
+                                        </Button>
+                                    </div>
                                 </FormLabel>
                                 <FormControl>
                                     <Input {...field} placeholder="Add a title to your video" />
@@ -168,8 +191,13 @@ const FormSectionSuspense = ({videoId}: FormSectionProps) => {
                         <FormField control={form.control} name="description" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Description
-                                    {/* TODO: add ai generate button */}
+                                <div className="flex items-center gap-x-2">
+                                        Description
+                                        <Button size="icon" variant="outline" type="button" className="rounded-full size-6 [&_svg]:size-3" onClick={ () => generateDescription.mutate({ id:videoId })} disabled={generateTitle.isPending || !video.muxTrackId}>
+                                            { generateDescription.isPending ? <Loader2Icon className="animate-spin" /> : <SparklesIcon/> }
+                                            
+                                        </Button>
+                                    </div>
                                 </FormLabel>
                                 <FormControl>
                                     <Textarea {...field} value={field.value ?? ""} rows={10} className="resize-none pr-10" placeholder="Add a description to your video" />
