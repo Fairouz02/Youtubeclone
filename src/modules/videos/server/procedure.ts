@@ -1,15 +1,49 @@
 // creating and uploading of videos into database
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
+import { UTApi } from "uploadthing/server";
 
 import { db } from "@/db";
 import { mux } from "@/lib/mux";
 import { TRPCError } from "@trpc/server";
+import { workflow } from "@/lib/workflow";
 import { videos, videoUpdateSchema } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { UTApi } from "uploadthing/server";
 
 export const videosRouter = createTRPCRouter({
+    generateTitle: protectedProcedure.input(z.object({ id: z.string().uuid() }))
+        .mutation(async ({ ctx, input }) => {
+        const {id: userId} = ctx.user
+        const { workflowRunId } = await workflow.trigger({
+            url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/title`,
+            body: { userId, videoId: input.id },
+            retries: 3
+        })
+
+        return workflowRunId
+    }),
+    generateDescription: protectedProcedure.input(z.object({ id: z.string().uuid() }))
+        .mutation(async ({ ctx, input }) => {
+        const {id: userId} = ctx.user
+        const { workflowRunId } = await workflow.trigger({
+            url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/description`,
+            body: { userId, videoId: input.id },
+            retries: 3
+        })
+
+        return workflowRunId
+    }),
+    generateThumbnail: protectedProcedure.input(z.object({ id: z.string().uuid(), prompt: z.string().min(10) }))
+        .mutation(async ({ ctx, input }) => {
+        const {id: userId} = ctx.user
+        const { workflowRunId } = await workflow.trigger({
+            url: `${process.env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/thumbnail`,
+            body: { userId, videoId: input.id, prompt: input.prompt },
+            retries: 3
+        })
+
+        return workflowRunId
+    }),
     restoreThumbnail: protectedProcedure.input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ ctx, input }) => {
             const { id: userId } = ctx.user
@@ -58,6 +92,7 @@ export const videosRouter = createTRPCRouter({
     remove: protectedProcedure.input(z.object({ id: z.string().uuid() }))
         .mutation(async ({ctx, input}) => {
             const { id: userId } = ctx.user
+            const utapi = new UTApi()
 
             const [removedVideo] = await db.delete(videos)
                 .where(and(
@@ -67,6 +102,17 @@ export const videosRouter = createTRPCRouter({
                 
             if (!removedVideo) {
                 throw new TRPCError({ code: "NOT_FOUND"})
+            }
+
+            if (removedVideo.thumbnailKey) {
+
+                await utapi.deleteFiles(removedVideo.thumbnailKey)
+
+            }
+            if (removedVideo.previewKey) {
+
+                await utapi.deleteFiles(removedVideo.previewKey)
+
             }
 
             return removedVideo
