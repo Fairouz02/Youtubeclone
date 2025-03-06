@@ -42,3 +42,6 @@ Create design and content of video edit page: form-section.tsx, videos-section.t
 
 Integrate UploadThing for user to upload thumbnail instead of using default
 UTApi is fetching the thumbnail information
+
+### Day 8:
+Integrate Upstash workflow to run background AI jobs
