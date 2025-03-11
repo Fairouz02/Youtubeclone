@@ -177,10 +177,12 @@ const FormSectionSuspense = ({videoId}: FormSectionProps) => {
 
     const onSubmit = (data: z.infer<typeof videoUpdateSchema>) => {
         update.mutateAsync(data)
+        
+        // router.push("/studio")
     }
 
     // TODO: change if deploying outside of vercel
-    const fullUrl = `${process.env.VERCEL_URL || "https://localhost:3000"}/videos/${videoId}`
+    const fullUrl = `${process.env.VERCEL_URL || "http://localhost:3000"}/videos/${videoId}`
     const [ isCopied, setIsCopied ] = useState(false)
     const onCopy = async () => {
         await navigator.clipboard.writeText(fullUrl)
@@ -203,9 +205,9 @@ const FormSectionSuspense = ({videoId}: FormSectionProps) => {
                         <p className="text-xs text-muted-foreground">Manage your video details</p>
                     </div>
                     <div className="flex items-center gap-x-2">
-                        <Button type="submit" disabled={update.isPending || !form.formState.isDirty}>
-                            Save
-                        </Button>
+                            <Button type="submit" disabled={update.isPending || !form.formState.isDirty} >
+                                Save
+                            </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild> 
                                 <Button variant="ghost" size="icon">

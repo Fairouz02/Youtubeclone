@@ -7,7 +7,7 @@ import { eq, and, or, lt, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const studioRouter = createTRPCRouter({
-    // getting the video that was clicked in studio page
+    // getting the video that was clicked in studio page and a protected procedure
     getOne: protectedProcedure.input(
         z.object({ id: z.string() }))
         .query(async ({ ctx, input })=> {

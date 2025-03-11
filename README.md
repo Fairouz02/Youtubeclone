@@ -47,3 +47,6 @@ UTApi is fetching the thumbnail information
 Integrate Upstash workflow to run background AI jobs
 AI for title and description generation created but not enabled due to OpenAI subscription plan
 files required is in api/videos/workflows
+
+### Day 9: 
+Creating video form 
